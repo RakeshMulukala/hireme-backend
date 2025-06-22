@@ -1,34 +1,22 @@
-services:
-  db:
-    image: postgres:15
-    container_name: hireme_db
-    restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+version: '3.9'
 
+services:
   web:
     build: .
     container_name: hireme_api
     restart: always
-    depends_on:
-      - db
     env_file:
       - .env
     ports:
       - "8000:8000"
-    command: ["./wait-for-db.sh", "dpg-d15fo2nfte5s739612b0-a", "5432", "uvicorn", "hiremebackend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["./wait-for-db.sh", "dpg-d15fo2nfte5s739612b0-a.singapore-postgres.render.com", "5432", "uvicorn", "hiremebackend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      - db_proxy  # Dummy service to satisfy docker-compose syntax (actual DB is external)
 
+  # Dummy service to avoid error on 'depends_on' - won't be used
+  db_proxy:
+    image: alpine
+    command: ["tail", "-f", "/dev/null"]
 
 volumes:
   pgdata:
