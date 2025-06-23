@@ -11,7 +11,8 @@ load_dotenv()
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./test.db')
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"} if "postgresql" in DATABASE_URL else {})
+
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 Base = declarative_base()
