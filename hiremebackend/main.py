@@ -56,6 +56,7 @@ app.include_router(auth_router.router)
 app.include_router(deliveries.router)
 app.include_router(coupons.router)
 
+
 @app.get("/")
-def read_root():
-    return {"message": "Hire Me API is running"}
+def root():
+    return {"message": "Hire Me API is working!"}
