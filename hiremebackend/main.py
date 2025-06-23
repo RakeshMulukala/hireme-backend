@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from hiremebackend.database_module import Base, engine
 from hiremebackend.routers import users, deliveries, coupons
 from hiremebackend.routers import auth_router
 from hiremebackend import models
+
 
 # Auto-create tables
 Base.metadata.create_all(bind=engine)
@@ -56,8 +57,6 @@ app.include_router(auth_router.router)
 app.include_router(deliveries.router)
 app.include_router(coupons.router)
 
-
-@app.head("/")
 @app.get("/")
 async def root(request: Request):
-    return {"message": "Hire Me API is live"}
+    return {"message": "Hire Me API is working!"}
