@@ -57,6 +57,7 @@ app.include_router(deliveries.router)
 app.include_router(coupons.router)
 
 
+@app.head("/")
 @app.get("/")
-def root():
-    return {"message": "Hire Me API is working!"}
+async def root(request: Request):
+    return {"message": "Hire Me API is live"}
