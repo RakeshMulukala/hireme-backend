@@ -11,10 +11,9 @@ services:
       - "8000:8000"
     command: ["./wait-for-db.sh", "dpg-d15fo2nfte5s739612b0-a.singapore-postgres.render.com", "5432", "uvicorn", "hiremebackend.main:app", "--host", "0.0.0.0", "--port", "8000"]
     depends_on:
-      - db_proxy  # Dummy service to satisfy docker-compose syntax (actual DB is external)
+      - db_proxy
 
-  # Dummy service to avoid error on 'depends_on' - won't be used
-  db_proxy:
+  db_proxy:  # Dummy service to satisfy Docker dependency graph
     image: alpine
     command: ["tail", "-f", "/dev/null"]
 

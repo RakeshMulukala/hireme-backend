@@ -1,23 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from hiremebackend import models, schemas, database_module
-from hiremebackend.auth import get_password_hash, get_current_user
-from typing import List
+from hiremebackend import models, schemas
+from hiremebackend.database_module import get_db
+from hiremebackend.auth import get_password_hash
+from hiremebackend.auth import get_current_user
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post("/", response_model=schemas.UserRead)
-def create_user(user: schemas.UserCreate, db: Session = Depends(database_module.get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
+@router.post("/", response_model=schemas.UserOut)
+def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-    hashed_password = get_password_hash(user.password)
-    new_user = models.User(username=user.username, email=user.email, hashed_password=hashed_password)
+    hashed_pw = get_password_hash(user.password)
+    new_user = models.User(email=user.email, username=user.username, password=hashed_pw)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
-@router.get("/", response_model=List[schemas.UserRead])
-def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(database_module.get_db)):
-    return db.query(models.User).offset(skip).limit(limit).all()
+@router.get("/me", response_model=schemas.UserOut)
+def get_profile(current_user: models.User = Depends(get_current_user)):
+    return current_user

@@ -9,23 +9,22 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./test.db')
+# Use PostgreSQL or fallback to SQLite
+DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite:///./test.db"
 
-engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"} if "postgresql" in DATABASE_URL else {})
+# Create engine with PostgreSQL SSL support if needed
+if DATABASE_URL.startswith("postgresql"):
+    engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+else:
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})  # For SQLite
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Dependency to provide a DB session
+# Dependency to get DB session
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-
-
-
-
-

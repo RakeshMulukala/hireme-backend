@@ -4,30 +4,31 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 from hiremebackend.database_module import Base
-from hiremebackend import models  # import models so Alembic sees them
-target_metadata = Base.metadata
-
+from hiremebackend import models  # ensure Alembic sees models
 
 from dotenv import load_dotenv
 load_dotenv()
 
 config = context.config
 
+# Load from environment
 database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise Exception("DATABASE_URL environment variable not set")
 
 config.set_main_option("sqlalchemy.url", database_url)
 
+# Logging
 fileConfig(config.config_file_name)
 
-target_metadata = None  # or your models.Base.metadata
+# ✅ Use your models' metadata
+target_metadata = Base.metadata
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, 
-        target_metadata=target_metadata, 
+        url=url,
+        target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )

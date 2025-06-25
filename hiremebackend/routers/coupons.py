@@ -20,10 +20,17 @@ def create_coupon(
     return new_coupon
 
 @router.get("/", response_model=List[schemas.CouponRead])
-def get_coupons(
+def get_user_coupons(
     skip: int = 0,
-    limit: int = 10,
+    limit: int = 20,
     db: Session = Depends(database_module.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    return db.query(models.Coupon).filter(models.Coupon.owner_id == current_user.id).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Coupon)
+        .filter(models.Coupon.owner_id == current_user.id)
+        .order_by(models.Coupon.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
